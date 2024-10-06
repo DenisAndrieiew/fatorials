@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 public class Calculator implements AutoCloseable {
     private final ExecutorService executor;
     private Futures futures;
+    private int count = 0;
 
     public Calculator(AppParams appParams, Futures futures) {
         this.executor = Executors.newFixedThreadPool(appParams.getThreadsCount());
@@ -25,23 +26,10 @@ public class Calculator implements AutoCloseable {
         if (executor.isShutdown() || executor.isTerminated()) {
             throw new IllegalStateException("Calculator is closed");
         }
-            Callable<String> callable = () -> {
+        System.out.println(count++);
+        Callable<String> callable = () -> {
             try {
-                int number = 0;
-                String result;
-                try {
-                    number = Integer.parseInt(value);
-                } catch (NumberFormatException e) {
-                    return value;
-                }
-                if (number <= 0) {
-                    result = number + " = " + 0;
-                } else if (number <= 20) {
-                    result = calculateSmallNumberFactorial(number);
-                } else {
-                    result = calculateBigNumberFactorial(number);
-                }
-                return result;
+                return getresult(value);
             } finally {
                 futures.notifyThatReady();
             }
@@ -50,20 +38,38 @@ public class Calculator implements AutoCloseable {
         futures.add(future);
     }
 
-    private static String calculateBigNumberFactorial(int number) {
+    private static String getresult(String value) {
+        int number = 0;
+        String result;
+        try {
+            number = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return value;
+        }
+        if (number <= 0) {
+            result = number + " = " + 0;
+        } else if (number <= 20) {
+            result = value + " = " + calculateSmallNumberFactorial(number);
+        } else {
+            result = value + " = " + calculateBigNumberFactorial(number);
+        }
+        return result;
+    }
+
+    private static BigInteger calculateBigNumberFactorial(int number) {
         BigInteger factorial = BigInteger.ONE;
         for (int i = 1; i <= number; i++) {
             factorial = factorial.multiply(BigInteger.valueOf(i));
         }
-        return number + " = " + factorial;
+        return factorial;
     }
 
-    private static String calculateSmallNumberFactorial(int number) {
+    private static long calculateSmallNumberFactorial(int number) {
         long factorial = 1;
         for (int i = 1; i <= number; i++) {
             factorial *= i;
         }
-        return number + " = " + factorial;
+        return factorial;
     }
 
     @Override
