@@ -19,7 +19,7 @@ This is a console-based multithreaded program that calculates factorials for eac
 This project uses Maven for building. To build the project, run `mvn clean package` in the project root directory. 
 
 ## Running
-In target directory run java -jar factorial-calculator-1.0-SNAPSHOT.jar [OPTIONS]
+In target directory run `java -jar factorial-calculator-1.0-SNAPSHOT.jar [OPTIONS]`
 ## Options
 - `-f` or `--file`: Set the input file name.
 
