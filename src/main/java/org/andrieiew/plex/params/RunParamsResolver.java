@@ -5,7 +5,7 @@ public class RunParamsResolver {
     public static AppParams resolve(String[] args) {
         boolean isFileParamSet = false;
         boolean isThreadsParamSet = false;
-        boolean isCacheParamSet = false;
+        boolean isSkipDelaysSet = false;
         AppParams appParams = new AppParams();
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
@@ -28,16 +28,6 @@ public class RunParamsResolver {
                         appParams.setThreadsCount(count);
                     }
                     break;
-                case "-c":
-                case "--cache":
-                    if (!isCacheParamSet && i + 1 < args.length) {
-                        AppParams.CacheType cacheType = AppParams.CacheType.fromString(args[++i]);
-                        if (cacheType != null) {
-                            appParams.setCacheType(cacheType);
-                            isCacheParamSet = true;
-                        }
-                    }
-                    break;
                 case "-se":
                 case "--skip-empty":
                     appParams.setSkipEmptyLines(true);
@@ -49,6 +39,13 @@ public class RunParamsResolver {
                 case "-dbg":
                 case "--debug":
                     appParams.setDebug(true);
+                    break;
+                case "-sd":
+                case "--skip-delays":
+                    if (!isSkipDelaysSet) {
+                        appParams.setSkipDelays(true);
+                        isSkipDelaysSet = true;
+                    }
                     break;
                 default:
             }

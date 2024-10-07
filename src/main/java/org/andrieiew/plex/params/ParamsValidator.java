@@ -8,7 +8,6 @@ public class ParamsValidator {
     public AppParams validate(AppParams appParams) {
         getValidFileName(appParams);
         getValidThreadsCount(appParams);
-        validateCacheType(appParams);
         return appParams;
     }
 
@@ -34,9 +33,4 @@ public class ParamsValidator {
         appParams.setFileName(fileName);
     }
 
-    private void validateCacheType(AppParams appParams) {
-        if (appParams.getCacheType() == null) {
-            appParams.setCacheType(AppParams.CacheType.NONE);
-        }
-    }
 }

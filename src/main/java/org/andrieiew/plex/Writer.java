@@ -3,6 +3,7 @@ package org.andrieiew.plex;
 import lombok.SneakyThrows;
 import org.andrieiew.plex.logging.Logger;
 import org.andrieiew.plex.logging.SimpleLogger;
+import org.andrieiew.plex.params.Dialog;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -31,6 +32,7 @@ public class Writer {
                     synchronized (futures) {
                         if (!futures.isFutureReady()) {
                             if (futures.isEmpty() && futures.isReadingFinished()) {
+                                Dialog.getInstance().getString("All tasks are done. Press Enter to exit.");
                                 break;
                             }
                             futures.wait();

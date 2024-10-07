@@ -11,27 +11,13 @@ public class AppParams {
 
     private String fileName = DEFAULT_FILE_NAME;
     private int threadsCount;
-    private CacheType cacheType = CacheType.NONE;
     private boolean skipEmptyLines = false;
     private boolean skipStrings = false;
     private boolean isDebug = false;
+    private boolean skipDelays = false;
 
     protected AppParams() {
     }
 
-    public enum CacheType {
-        NONE,
-        FULL,
-        STEPS;
-
-        public static CacheType fromString(String value) {
-            for (CacheType type : CacheType.values()) {
-                if (type.name().equalsIgnoreCase(value)) {
-                    return type;
-                }
-            }
-            return null;
-        }
-    }
 
 }

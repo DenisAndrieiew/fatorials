@@ -5,19 +5,20 @@ import org.andrieiew.plex.logging.SimpleLogger;
 import org.andrieiew.plex.params.AppParams;
 
 import java.math.BigInteger;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class Calculator implements AutoCloseable {
     private final ExecutorService executor;
     private Futures futures;
-    private int count = 0;
+    private int readCount = 0;
+    private int processedCount = 0;
+    private final boolean withDelay;
+    Semaphore semaphore = new Semaphore(100);
 
     public Calculator(AppParams appParams, Futures futures) {
         this.executor = Executors.newFixedThreadPool(appParams.getThreadsCount());
         this.futures = futures;
+        this.withDelay = !appParams.isSkipDelays();
     }
 
     private static final Logger logger = SimpleLogger.getInstance();
@@ -26,16 +27,45 @@ public class Calculator implements AutoCloseable {
         if (executor.isShutdown() || executor.isTerminated()) {
             throw new IllegalStateException("Calculator is closed");
         }
-        System.out.println(count++);
+        logger.log(readCount++);
         Callable<String> callable = () -> {
+            long currentTimeMillis = System.currentTimeMillis();
             try {
+                acquire();
                 return getresult(value);
             } finally {
+                release(currentTimeMillis);
                 futures.notifyThatReady();
             }
         };
+
         Future<String> future = executor.submit(callable);
         futures.add(future);
+    }
+
+    private void acquire() {
+        if (withDelay) {
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException e) {
+                logger.log("Interrupted: " + e.getMessage());
+            }
+        }
+    }
+
+    private void release(long startTime) {
+        if (withDelay) {
+            long time = System.currentTimeMillis() - startTime;
+            logger.log("count: " + ++processedCount + " time:" + time);
+            if (time < 1000) {
+                try {
+                    Thread.sleep(1000 - time);
+                } catch (InterruptedException e) {
+                    logger.log("Interrupted: " + e.getMessage());
+                }
+            }
+            semaphore.release();
+        }
     }
 
     private static String getresult(String value) {
